@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
-from app import app, db
-from app.models import QuizQuestion
+from . import db
+from .models import QuizQuestion
 
 @app.route('/')
 def index():
@@ -16,7 +16,7 @@ def quiz(id):
             flash('Correct!', 'success')
         else:
             flash('Incorrect. The correct answer was: {}'.format(question.correct_answer), 'danger')
-        
+
         next_question = QuizQuestion.query.filter(QuizQuestion.id > id).first()
         if next_question:
             return redirect(url_for('quiz', id=next_question.id))
@@ -52,4 +52,3 @@ def add_question():
         return redirect(url_for('index'))
 
     return render_template('add_question.html')
-
