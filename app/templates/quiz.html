@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Python Quiz</h2>
+<form action="{{ url_for('submit') }}" method="POST">
+    <label for="username">Enter your name:</label>
+    <input type="text" name="username" required>
+    <hr>
+    {% for question in questions %}
+        <div class="question">
+            <p>{{ question.id }}. {{ question.question }}</p>
+            <label><input type="radio" name="{{ question.id }}" value="{{ question.option1 }}"> {{ question.option1 }}</label><br>
+            <label><input type="radio" name="{{ question.id }}" value="{{ question.option2 }}"> {{ question.option2 }}</label><br>
+            <label><input type="radio" name="{{ question.id }}" value="{{ question.option3 }}"> {{ question.option3 }}</label><br>
+            <label><input type="radio" name="{{ question.id }}" value="{{ question.option4 }}"> {{ question.option4 }}</label><br>
+        </div>
+        <hr>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}
+

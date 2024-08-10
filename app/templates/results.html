@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Results</h2>
+<p>Thank you, {{ user.username }}!</p>
+<p>Your Score: {{ user.score }} / {{ questions|length }}</p>
+<a href="{{ url_for('index') }}">Try Again</a>
+{% endblock %}
+
