@@ -1,9 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Results</h2>
+<h2>Quiz Results</h2>
 <p>Thank you, {{ user.username }}!</p>
-<p>Your Score: {{ user.score }} / {{ questions|length }}</p>
-<a href="{{ url_for('index') }}">Try Again</a>
+<table>
+    <thead>
+        <tr>
+            <th>Question</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for answer in answers %}
+            {% set question = answer.question %}
+            <tr>
+                <td>{{ question.question }}</td>
+                <td>{{ answer.selected_option }}</td>
+                <td>{{ question.correct_answer }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
-
