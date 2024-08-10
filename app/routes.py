@@ -1,36 +1,55 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from app import app, db
-from app.models import QuizQuestion, User, QuizAnswer
+from app.models import QuizQuestion
 
 @app.route('/')
 def index():
     questions = QuizQuestion.query.all()
-    return render_template('quiz.html', questions=questions)
+    return render_template('index.html', questions=questions)
 
-@app.route('/submit', methods=['POST'])
-def submit():
-    username = request.form.get('username')
-    if not username:
-        return redirect(url_for('index'))
+@app.route('/quiz/<int:id>', methods=['GET', 'POST'])
+def quiz(id):
+    question = QuizQuestion.query.get_or_404(id)
+    if request.method == 'POST':
+        selected_option = request.form.get('option')
+        if selected_option == question.correct_answer:
+            flash('Correct!', 'success')
+        else:
+            flash('Incorrect. The correct answer was: {}'.format(question.correct_answer), 'danger')
+        
+        next_question = QuizQuestion.query.filter(QuizQuestion.id > id).first()
+        if next_question:
+            return redirect(url_for('quiz', id=next_question.id))
+        else:
+            flash('Quiz Completed!', 'info')
+            return redirect(url_for('index'))
 
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        user = User(username=username)
-        db.session.add(user)
+    return render_template('quiz.html', question=question)
+
+@app.route('/add', methods=['GET', 'POST'])
+def add_question():
+    if request.method == 'POST':
+        question_text = request.form['question']
+        option1 = request.form['option1']
+        option2 = request.form['option2']
+        option3 = request.form['option3']
+        option4 = request.form['option4']
+        correct_answer = request.form['correct_answer']
+
+        new_question = QuizQuestion(
+            question=question_text,
+            option1=option1,
+            option2=option2,
+            option3=option3,
+            option4=option4,
+            correct_answer=correct_answer
+        )
+
+        db.session.add(new_question)
         db.session.commit()
 
-    for question_id in request.form:
-        if question_id != 'username':
-            selected_option = request.form.get(question_id)
-            answer = QuizAnswer(question_id=question_id, user_id=user.id, selected_option=selected_option)
-            db.session.add(answer)
-    
-    db.session.commit()
-    return redirect(url_for('results', username=username))
+        flash('Question added successfully!', 'success')
+        return redirect(url_for('index'))
 
-@app.route('/results')
-def results():
-    username = request.args.get('username')
-    user = User.query.filter_by(username=username).first_or_404()
-    answers = QuizAnswer.query.filter_by(user_id=user.id).all()
-    return render_template('results.html', user=user, answers=answers)
+    return render_template('add_question.html')
+
